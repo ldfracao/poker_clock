@@ -1,0 +1,11 @@
+App creation checklist.
+-[ ] Define language and interface
+-[ ] Listar o funcionamento de cada comando da aplicação
+-[ ] Escolher tipos de cores e designs
+-[ ] Discutir as ideias para continuar
+-[ ] item 04 
+-[ ] item 05 
+-[ ] item 06 
+-[ ] item 07 
+-[ ] item 08 
+-[ ] item 09 
