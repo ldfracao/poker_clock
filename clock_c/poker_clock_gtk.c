@@ -1,27 +1,80 @@
 #include <gtk/gtk.h>
 
-void end_program (void)
+static void
+print_hello (GtkWidget *widget, gpointer data)
 {
-    gtk_main_quit ();
+    g_print ("Hello World\n");
 }
 
-int main (int argc, char *argv[])
+static void
+activate (GtkApplication *app, gpointer user_data)
 {
-    gtk_init (&argc, &argv);
+    GtkWidget *window;
+    GtkWidget *grid;
+    GtkWidget *button;
+    GtkWidget *menu;
 
-    GtkWidget *win = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    GtkWidget *btn = gtk_button_new_with_label ("Close window");
-    g_signal_connect (btn, "clicked", G_CALLBACK (end_program), NULL);
-    g_signal_connect (win, "delete_event", G_CALLBACK (end_program), NULL);
+    // create a new window and set its title
+    window = gtk_application_window_new (app);
+    gtk_window_set_title (GTK_WINDOW (window), "Doom Clock");
+    gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
+    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 
-    gtk_container_add (GTK_CONTAINER (win), btn);
 
-    gtk_widget_show_all (win);
+    // grid container
+    grid = gtk_grid_new ();
 
-    gtk_widget_show (win);
+    /* Pack the container in the window */
+    gtk_container_add (GTK_CONTAINER (window), grid);
 
-    gtk_main ();
-    gtk_main_quit();
+    menu = gtk_menu_bar_new ();
+    gtk_container_add (GTK_CONTAINER (window), grid);
 
-    return 0;
+    gtk_grid_attach (GTK_GRID (grid), menu, 0, 0, 1, 1);
+    button = gtk_button_new_with_label ("New tournament");
+    g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
+
+    /* Place the first button in the grid cell (0, 0), and make it fill
+    * just 1 cell horizontally and vertically (ie no spanning)
+    */
+    gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 1, 1);
+
+    button = gtk_button_new_with_label ("Prize pool");
+    g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
+
+    /* Place the second button in the grid cell (1, 0), and make it fill
+    * just 1 cell horizontally and vertically (ie no spanning)
+    */
+    gtk_grid_attach (GTK_GRID (grid), button, 1, 1, 1, 1);
+
+    button = gtk_button_new_with_label ("Settings");
+    g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
+
+    /* Place the Quit button in the grid cell (0, 1), and make it
+    * span 2 columns.
+    */
+    gtk_grid_attach (GTK_GRID (grid), button, 2, 1, 1, 1);
+
+    /* Now that we are done packing our widgets, we show them all
+    * in one go, by calling gtk_widget_show_all() on the window.
+    * This call recursively calls gtk_widget_show() on all widgets
+    * that are contained in the window, directly or indirectly.
+    */
+    gtk_widget_show_all (window);
+
+}
+
+int
+main (int    argc,
+      char **argv)
+{
+  GtkApplication *app;
+  int status;
+
+  app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+  status = g_application_run (G_APPLICATION (app), argc, argv);
+  g_object_unref (app);
+
+  return status;
 }
