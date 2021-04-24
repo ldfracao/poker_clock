@@ -1,79 +1,62 @@
 #include <gtk/gtk.h>
 
 static void
-print_hello (GtkWidget *widget, gpointer data)
-{
-    g_print ("Hello World\n");
-}
-
-static void
 activate (GtkApplication *app, gpointer user_data)
 {
-    GtkWidget *window;
-    GtkWidget *grid;
-    GtkWidget *button;
-    GtkWidget *menu;
+  GtkWidget *window;
+  GtkWidget *menu_bar;
+  GtkWidget *menu;
 
-    // create a new window and set its title
-    window = gtk_application_window_new (app);
-    gtk_window_set_title (GTK_WINDOW (window), "Doom Clock");
-    gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
-    gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+  // create a new window and set its title size and border
+  // GTK_WINDOW will check if the pointer is an instance of the GtkWindow class, before casting, and emit a warning if the check fails.
+  window = gtk_application_window_new (app);
+  gtk_window_set_title (GTK_WINDOW (window), "Doom clock");
+  gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
+  // gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 
+  GtkWidget *box;
+  GtkWidget *button;
+  GtkWidget *sub_menu;
 
-    // grid container
-    grid = gtk_grid_new ();
+  // box inside window as a base widget
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
+  gtk_container_add (GTK_CONTAINER (window), box);
 
-    /* Pack the container in the window */
-    gtk_container_add (GTK_CONTAINER (window), grid);
+  // menu bar
+  menu_bar = gtk_menu_bar_new ();
+  gtk_container_add (GTK_CONTAINER(box), menu_bar);
 
-    menu = gtk_menu_bar_new ();
-    gtk_container_add (GTK_CONTAINER (window), grid);
+  menu = gtk_menu_item_new_with_mnemonic ("_File");
+  gtk_container_add (GTK_CONTAINER(menu_bar), menu);  
+  menu_item = gtk_menu_item_new_with_mnemonic ("_Preferences");
+  gtk_container_add (GTK_CONTAINER(GTK_WIDGET(menu_bar)), menu_item);
+  menu_item = gtk_menu_item_new_with_mnemonic ("_About");
+  gtk_container_add (GTK_CONTAINER(GTK_WIDGET(menu_bar)), menu_item);
 
-    gtk_grid_attach (GTK_GRID (grid), menu, 0, 0, 1, 1);
-    button = gtk_button_new_with_label ("New tournament");
-    g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-
-    /* Place the first button in the grid cell (0, 0), and make it fill
-    * just 1 cell horizontally and vertically (ie no spanning)
-    */
-    gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 1, 1);
-
-    button = gtk_button_new_with_label ("Prize pool");
-    g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-
-    /* Place the second button in the grid cell (1, 0), and make it fill
-    * just 1 cell horizontally and vertically (ie no spanning)
-    */
-    gtk_grid_attach (GTK_GRID (grid), button, 1, 1, 1, 1);
-
-    button = gtk_button_new_with_label ("Settings");
-    g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-
-    /* Place the Quit button in the grid cell (0, 1), and make it
-    * span 2 columns.
-    */
-    gtk_grid_attach (GTK_GRID (grid), button, 2, 1, 1, 1);
-
-    /* Now that we are done packing our widgets, we show them all
-    * in one go, by calling gtk_widget_show_all() on the window.
-    * This call recursively calls gtk_widget_show() on all widgets
-    * that are contained in the window, directly or indirectly.
-    */
-    gtk_widget_show_all (window);
+  // This call recursively calls gtk_widget_show() on all widgets
+  // that are contained in the window, directly or indirectly.
+  gtk_widget_show_all (window);
 
 }
 
+// in a GTK+ application, the purpose of the main() function is to create a GtkApplication object and run it.
 int
-main (int    argc,
-      char **argv)
+main (int argc, char **argv)
 {
   GtkApplication *app;
   int status;
 
-  app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+  // app pointer initilization
+  app = gtk_application_new ("org.gtk.doomclock", G_APPLICATION_FLAGS_NONE);
+
+  // connects activate signal to activate function
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+
+  // lauches the app aand sends activate signal, takes command line arguments, the parsed arguments will be removed from the array
+  // pressing X on the main window stores the int returned by g_application_run in status
   status = g_application_run (G_APPLICATION (app), argc, argv);
+
+  // frees the app
   g_object_unref (app);
 
   return status;
