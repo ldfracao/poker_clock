@@ -1,16 +1,5 @@
 #include <gtk/gtk.h>
 
-void sub_menu_create (void)
-{
-  GtkWidget *menu;
-
-  menu = gtk_menu_new ();
-  menu = gtk_menu_item_new_with_label ("Open");
-  gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu), menu);
-
-
-}
-
 static void
 activate (GtkApplication *app, gpointer user_data)
 {
@@ -22,7 +11,13 @@ activate (GtkApplication *app, gpointer user_data)
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Doom clock");
   gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
+  gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
   // gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+
+  // GdkPixbuf *icon;
+
+  // icon = create_pixbuf("icon.jpg");
+  gtk_window_set_icon_from_file (GTK_WINDOW (window), "icon.jpg", NULL);
 
   // box inside window as a base widget
   GtkWidget *box;
@@ -60,6 +55,7 @@ activate (GtkApplication *app, gpointer user_data)
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item2);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item3);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item4);
+    g_signal_connect_swapped (file_menu_item4, "activate", G_CALLBACK (gtk_widget_destroy), window);    
 
   // About
   menu_item = gtk_menu_item_new_with_mnemonic ("_About");
