@@ -12,13 +12,7 @@ activate (GtkApplication *app, gpointer user_data)
   gtk_window_set_title (GTK_WINDOW (window), "Doom clock");
   gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
   gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
-  // gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-
-  // GdkPixbuf *icon;
-
-  // icon = create_pixbuf("icon.jpg");
-  gtk_window_set_icon_from_file (GTK_WINDOW (window), "icon.jpg", NULL);
-
+  
   // box inside window as a base widget
   GtkWidget *box;
 
@@ -29,13 +23,14 @@ activate (GtkApplication *app, gpointer user_data)
   GtkWidget *menu_bar;
   GtkWidget *menu;
   GtkWidget *menu_item;
-  GtkWidget *file_menu_item1;
-  GtkWidget *file_menu_item2;
-  GtkWidget *file_menu_item3;
-  GtkWidget *file_menu_item4;
+  GtkWidget *file_menu_open;
+  GtkWidget *file_menu_save;
+  GtkWidget *file_menu_save_as;
+  GtkWidget *file_menu_close;
 
   // accelerators
   GtkAccelGroup *accel_group = NULL;
+
   accel_group = gtk_accel_group_new ();
   gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 
@@ -52,23 +47,26 @@ activate (GtkApplication *app, gpointer user_data)
   gtk_container_add (GTK_CONTAINER(menu_bar), menu_item);
 
     // File sub menu items
-    file_menu_item1 = gtk_menu_item_new_with_label ("Open");
-    file_menu_item2 = gtk_menu_item_new_with_label ("Save");
-    file_menu_item3 = gtk_menu_item_new_with_label ("Save as");
-    file_menu_item4 = gtk_menu_item_new_with_label ("Close");
+    file_menu_open = gtk_menu_item_new_with_label ("Open");
+    file_menu_save = gtk_menu_item_new_with_label ("Save");
+    file_menu_save_as = gtk_menu_item_new_with_label ("Save as");
+    file_menu_close = gtk_menu_item_new_with_label ("Close");
 
     // set and populate file menu
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item1);
-    gtk_widget_add_accelerator(file_menu_item1, "activate", accel_group, GDK_KEY_O, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item2);
-    gtk_widget_add_accelerator(file_menu_item2, "activate", accel_group, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item3);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_open);
+    gtk_widget_add_accelerator(file_menu_open, "activate", accel_group, GDK_KEY_Shift_L, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
-    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item4);
-    gtk_widget_add_accelerator(file_menu_item4, "activate", accel_group, GDK_KEY_Q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_save);
+    gtk_widget_add_accelerator(file_menu_save, "activate", accel_group, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
-    g_signal_connect_swapped (file_menu_item4, "activate", G_CALLBACK (gtk_widget_destroy), window);    
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_save_as);
+    gtk_widget_add_accelerator(file_menu_save_as, "activate", accel_group, GDK_KEY_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+
+    gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_close);
+    gtk_widget_add_accelerator(file_menu_close, "activate", accel_group, GDK_KEY_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+
+    g_signal_connect_swapped (file_menu_close, "activate", G_CALLBACK (gtk_widget_destroy), window);    
 
   // About
   menu_item = gtk_menu_item_new_with_mnemonic ("_About");
