@@ -21,9 +21,11 @@ activate (GtkApplication *app, gpointer user_data)
 
   // box inside window as a base widget
   GtkWidget *box;
+
   box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
   gtk_container_add (GTK_CONTAINER (window), box);
 
+  // menu bar
   GtkWidget *menu_bar;
   GtkWidget *menu;
   GtkWidget *menu_item;
@@ -32,7 +34,12 @@ activate (GtkApplication *app, gpointer user_data)
   GtkWidget *file_menu_item3;
   GtkWidget *file_menu_item4;
 
-  // menu bar
+  // accelerators
+  GtkAccelGroup *accel_group = NULL;
+  accel_group = gtk_accel_group_new ();
+  gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
+
+  // empty menu bar
   menu_bar = gtk_menu_bar_new ();
   gtk_container_add (GTK_CONTAINER(box), menu_bar);
 
@@ -45,16 +52,22 @@ activate (GtkApplication *app, gpointer user_data)
   gtk_container_add (GTK_CONTAINER(menu_bar), menu_item);
 
     // File sub menu items
-    // Open
     file_menu_item1 = gtk_menu_item_new_with_label ("Open");
     file_menu_item2 = gtk_menu_item_new_with_label ("Save");
     file_menu_item3 = gtk_menu_item_new_with_label ("Save as");
     file_menu_item4 = gtk_menu_item_new_with_label ("Close");
+
+    // set and populate file menu
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item1);
+    gtk_widget_add_accelerator(file_menu_item1, "activate", accel_group, GDK_KEY_O, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item2);
+    gtk_widget_add_accelerator(file_menu_item2, "activate", accel_group, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item3);
+
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_item4);
+    gtk_widget_add_accelerator(file_menu_item4, "activate", accel_group, GDK_KEY_Q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+
     g_signal_connect_swapped (file_menu_item4, "activate", G_CALLBACK (gtk_widget_destroy), window);    
 
   // About
