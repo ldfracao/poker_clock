@@ -9,10 +9,9 @@ _label_update(gpointer data)
 
   static short seconds = 0;
   static short minutes = 0;
-  char buf[256];
+  char *buf = malloc(20 * sizeof(char));
 
-  memset(&buf, 0x0, 256);
-  snprintf(buf, 255, "%.2d:%.2d", minutes, ++seconds);
+  snprintf(buf, 20, "%.2d:%.2d", minutes, ++seconds);
   gtk_label_set_label(label, buf);
 
   return continue_timer;
