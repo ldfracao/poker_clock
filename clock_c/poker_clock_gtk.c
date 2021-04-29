@@ -13,6 +13,7 @@ _label_update(gpointer data)
 
   snprintf(buf, 20, "%.2d:%.2d", minutes, ++seconds);
   gtk_label_set_label(label, buf);
+  free(buf);
 
   return continue_timer;
 }
