@@ -21,10 +21,17 @@ _label_update(gpointer data)
 static void
 _start_pause_timer (GtkWidget *button, gpointer data)
 {
+
   GtkWidget *label = data;
 
-  g_timeout_add_seconds(1, _label_update, label);
-  continue_timer = TRUE;
+  static gboolean start_timer = FALSE;
+
+  if(!start_timer)
+  {
+    g_timeout_add_seconds(1, _label_update, label);
+    start_timer = TRUE;
+    continue_timer = TRUE;
+  }
 }
 
 static void
