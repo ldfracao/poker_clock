@@ -6,12 +6,13 @@ static gboolean
 _label_update(gpointer data)
 {
   GtkLabel *label = (GtkLabel*)data;
-  
-  static int sec_expired = 0;
+
+  static short seconds = 0;
+  static short minutes = 0;
   char buf[256];
 
   memset(&buf, 0x0, 256);
-  snprintf(buf, 255, "%d", ++sec_expired);
+  snprintf(buf, 255, "%.2d:%.2d", minutes, ++seconds);
   gtk_label_set_label(label, buf);
 
   return continue_timer;
@@ -112,7 +113,7 @@ activate (GtkApplication *app, gpointer user_data)
   main_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 100);
   gtk_container_set_border_width (GTK_CONTAINER (main_area), 50);
   gtk_container_add (GTK_CONTAINER (box), main_area);
-  label = gtk_label_new ("0");
+  label = gtk_label_new ("00:00");
   gtk_container_add (GTK_CONTAINER (main_area), label);
 
   st_button = gtk_button_new_with_label ("Start");
