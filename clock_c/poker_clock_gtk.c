@@ -19,19 +19,12 @@ _label_update(gpointer data)
 }
 
 static void
-_start_timer (GtkWidget *button, gpointer data)
+_start_pause_timer (GtkWidget *button, gpointer data)
 {
-
   GtkWidget *label = data;
 
-  static gboolean start_timer = FALSE;
-
-  if(!start_timer)
-  {
-      g_timeout_add_seconds(1, _label_update, label);
-      start_timer = TRUE;
-      continue_timer = TRUE;
-  }
+  g_timeout_add_seconds(1, _label_update, label);
+  continue_timer = TRUE;
 }
 
 static void
@@ -108,7 +101,8 @@ activate (GtkApplication *app, gpointer user_data)
 
   GtkWidget *main_area;
   GtkWidget *label;
-  GtkWidget *st_button;
+  GtkWidget *start_button;
+  GtkWidget *stop_button;
 
   main_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 100);
   gtk_container_set_border_width (GTK_CONTAINER (main_area), 50);
@@ -116,12 +110,9 @@ activate (GtkApplication *app, gpointer user_data)
   label = gtk_label_new ("00:00");
   gtk_container_add (GTK_CONTAINER (main_area), label);
 
-  st_button = gtk_button_new_with_label ("Start");
-  gtk_container_add (GTK_CONTAINER (main_area), st_button);
-  g_signal_connect (G_OBJECT(st_button), "clicked", G_CALLBACK (_start_timer), label);
-
-  st_button = gtk_button_new_with_label ("Stop");
-  gtk_container_add (GTK_CONTAINER (main_area), st_button);
+  start_button = gtk_button_new_with_label ("Start");
+  gtk_container_add (GTK_CONTAINER (main_area), start_button);
+  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_pause_timer), label);
 
   // This call recursively calls gtk_widget_show() on all widgets that are contained in the window, directly or indirectly.
   gtk_widget_show_all (window);
