@@ -1,6 +1,35 @@
 #include <gtk/gtk.h>
 
+// prototypes
+static gboolean _label_update(gpointer data);
+static void _pause_timer(GtkWidget *button, gpointer data);
+static void _start_timer (GtkWidget *button, gpointer data);
+static void activate (GtkApplication *app, gpointer user_data);
+
 static gboolean continue_timer = FALSE;
+
+// in a GTK+ application, the purpose of the main() function is to create a GtkApplication object and run it.
+int
+main (int argc, char **argv)
+{
+  GtkApplication *app;
+  int status;
+
+  // app pointer initilization
+  app = gtk_application_new ("org.gtk.doomclock", G_APPLICATION_FLAGS_NONE);
+
+  // connects activate signal to activate function
+  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+
+  // lauches the app aand sends activate signal, takes command line arguments, the parsed arguments will be removed from the array
+  // pressing X on the main window stores the int returned by g_application_run in status
+  status = g_application_run (G_APPLICATION (app), argc, argv);
+
+  // frees the app
+  g_object_unref (app);
+
+  return status;
+}
 
 static gboolean
 _label_update(gpointer data)
@@ -19,7 +48,13 @@ _label_update(gpointer data)
 }
 
 static void
-_start_pause_timer (GtkWidget *button, gpointer data)
+_pause_timer(GtkWidget *button, gpointer data)
+{
+  continue_timer = FALSE;
+}
+
+static void
+_start_timer (GtkWidget *button, gpointer data)
 {
 
   GtkWidget *label = data;
@@ -32,6 +67,7 @@ _start_pause_timer (GtkWidget *button, gpointer data)
     start_timer = TRUE;
     continue_timer = TRUE;
   }
+  g_signal_connect (G_OBJECT(button), "clicked", G_CALLBACK (_pause_timer), label);
 }
 
 static void
@@ -117,34 +153,11 @@ activate (GtkApplication *app, gpointer user_data)
   label = gtk_label_new ("00:00");
   gtk_container_add (GTK_CONTAINER (main_area), label);
 
-  start_button = gtk_button_new_with_label ("Start");
+  start_button = gtk_button_new_with_label ("Start/Pause");
   gtk_container_add (GTK_CONTAINER (main_area), start_button);
-  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_pause_timer), label);
+  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), label);
 
   // This call recursively calls gtk_widget_show() on all widgets that are contained in the window, directly or indirectly.
   gtk_widget_show_all (window);
 
-}
-
-// in a GTK+ application, the purpose of the main() function is to create a GtkApplication object and run it.
-int
-main (int argc, char **argv)
-{
-  GtkApplication *app;
-  int status;
-
-  // app pointer initilization
-  app = gtk_application_new ("org.gtk.doomclock", G_APPLICATION_FLAGS_NONE);
-
-  // connects activate signal to activate function
-  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-
-  // lauches the app aand sends activate signal, takes command line arguments, the parsed arguments will be removed from the array
-  // pressing X on the main window stores the int returned by g_application_run in status
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-
-  // frees the app
-  g_object_unref (app);
-
-  return status;
 }
