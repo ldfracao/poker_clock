@@ -1,5 +1,38 @@
 #include <gtk/gtk.h>
 
+static gboolean continue_timer = FALSE;
+
+static gboolean
+_label_update(gpointer data)
+{
+  GtkLabel *label = (GtkLabel*)data;
+  
+  static int sec_expired = 0;
+  char buf[256];
+
+  memset(&buf, 0x0, 256);
+  snprintf(buf, 255, "%d", ++sec_expired);
+  gtk_label_set_label(label, buf);
+
+  return continue_timer;
+}
+
+static void
+_start_timer (GtkWidget *button, gpointer data)
+{
+
+  GtkWidget *label = data;
+
+  static gboolean start_timer = FALSE;
+
+  if(!start_timer)
+  {
+      g_timeout_add_seconds(1, _label_update, label);
+      start_timer = TRUE;
+      continue_timer = TRUE;
+  }
+}
+
 static void
 activate (GtkApplication *app, gpointer user_data)
 {
@@ -55,13 +88,13 @@ activate (GtkApplication *app, gpointer user_data)
     // set and populate file menu
     gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), menu);
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_open);
-    gtk_widget_add_accelerator(file_menu_open, "activate", accel_group, GDK_KEY_Shift_L, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(file_menu_open, "activate", accel_group, GDK_KEY_o, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_save);
     gtk_widget_add_accelerator(file_menu_save, "activate", accel_group, GDK_KEY_s, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_save_as);
-    gtk_widget_add_accelerator(file_menu_save_as, "activate", accel_group, GDK_KEY_a, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(file_menu_save_as, "activate", accel_group, GDK_KEY_Shift_L, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), file_menu_close);
     gtk_widget_add_accelerator(file_menu_close, "activate", accel_group, GDK_KEY_w, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
@@ -72,8 +105,24 @@ activate (GtkApplication *app, gpointer user_data)
   menu_item = gtk_menu_item_new_with_mnemonic ("_About");
   gtk_container_add (GTK_CONTAINER(menu_bar), menu_item);
 
-  // This call recursively calls gtk_widget_show() on all widgets
-  // that are contained in the window, directly or indirectly.
+  GtkWidget *main_area;
+  GtkWidget *label;
+  GtkWidget *st_button;
+
+  main_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 100);
+  gtk_container_set_border_width (GTK_CONTAINER (main_area), 50);
+  gtk_container_add (GTK_CONTAINER (box), main_area);
+  label = gtk_label_new ("0");
+  gtk_container_add (GTK_CONTAINER (main_area), label);
+
+  st_button = gtk_button_new_with_label ("Start");
+  gtk_container_add (GTK_CONTAINER (main_area), st_button);
+  g_signal_connect (G_OBJECT(st_button), "clicked", G_CALLBACK (_start_timer), label);
+
+  st_button = gtk_button_new_with_label ("Stop");
+  gtk_container_add (GTK_CONTAINER (main_area), st_button);
+
+  // This call recursively calls gtk_widget_show() on all widgets that are contained in the window, directly or indirectly.
   gtk_widget_show_all (window);
 
 }
