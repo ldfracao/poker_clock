@@ -1,17 +1,22 @@
 #include <gtk/gtk.h>
 
+
+// gtk_css_provider_load_from_file("");
+
 // prototypes
 static gboolean _label_update(gpointer data);
 static void _pause_timer(GtkWidget *button, gpointer data);
 static void _start_timer (GtkWidget *button, gpointer data);
 static void activate (GtkApplication *app, gpointer user_data);
 
+static gboolean start_timer = FALSE;
 static gboolean continue_timer = FALSE;
 
 // in a GTK+ application, the purpose of the main() function is to create a GtkApplication object and run it.
 int
 main (int argc, char **argv)
 {
+
   GtkApplication *app;
   int status;
 
@@ -38,9 +43,9 @@ _label_update(gpointer data)
 
   static short seconds = 0;
   static short minutes = 0;
-  char *buf = malloc(20 * sizeof(char));
+  char *buf = malloc(200 * sizeof(char));
 
-  snprintf(buf, 20, "%.2d:%.2d", minutes, ++seconds);
+  snprintf(buf, 200, "%.2d:%.2d", minutes, ++seconds);
   gtk_label_set_label(label, buf);
   free(buf);
 
@@ -50,7 +55,18 @@ _label_update(gpointer data)
 static void
 _pause_timer(GtkWidget *button, gpointer data)
 {
-  continue_timer = FALSE;
+  GtkWidget *label = data;
+  if(start_timer)
+  {
+    continue_timer = !continue_timer;
+    if(continue_timer)
+    {
+      g_timeout_add_seconds(1, _label_update, label);
+      start_timer = TRUE;
+      continue_timer = TRUE;
+    }
+  }
+  g_signal_connect (G_OBJECT(button), "clicked", G_CALLBACK (_start_timer), label);
 }
 
 static void
@@ -58,8 +74,6 @@ _start_timer (GtkWidget *button, gpointer data)
 {
 
   GtkWidget *label = data;
-
-  static gboolean start_timer = FALSE;
 
   if(!start_timer)
   {
@@ -73,7 +87,6 @@ _start_timer (GtkWidget *button, gpointer data)
 static void
 activate (GtkApplication *app, gpointer user_data)
 {
-
   // create a new window and set its title size and border
   // GTK_WINDOW will check if the pointer is an instance of the GtkWindow class, before casting, and emit a warning if the check fails.
   GtkWidget *window;
@@ -156,6 +169,14 @@ activate (GtkApplication *app, gpointer user_data)
   start_button = gtk_button_new_with_label ("Start/Pause");
   gtk_container_add (GTK_CONTAINER (main_area), start_button);
   g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), label);
+
+  // adds stylesheet
+  GtkCssProvider *provider = gtk_css_provider_new ();
+  GtkStyleContext  *context;
+  gtk_css_provider_load_from_path (provider, "poker_clock_gtk_c.css", NULL);
+  context = gtk_widget_get_style_context (label);
+
+  gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
 
   // This call recursively calls gtk_widget_show() on all widgets that are contained in the window, directly or indirectly.
   gtk_widget_show_all (window);
