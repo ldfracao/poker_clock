@@ -1,4 +1,8 @@
 label 
 {
-    font-size: 40px;
+    font-size: 100px;
+}
+window
+{
+    background-color: green;
 }

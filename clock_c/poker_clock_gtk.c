@@ -1,8 +1,5 @@
 #include <gtk/gtk.h>
 
-
-// gtk_css_provider_load_from_file("");
-
 // prototypes
 static gboolean _label_update(gpointer data);
 static void _pause_timer(GtkWidget *button, gpointer data);
@@ -99,7 +96,7 @@ activate (GtkApplication *app, gpointer user_data)
   // box inside window as a base widget
   GtkWidget *box;
 
-  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
+  box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_container_add (GTK_CONTAINER (window), box);
 
   // menu bar
@@ -155,28 +152,65 @@ activate (GtkApplication *app, gpointer user_data)
   menu_item = gtk_menu_item_new_with_mnemonic ("_About");
   gtk_container_add (GTK_CONTAINER(menu_bar), menu_item);
 
+  // MAIN AREA
   GtkWidget *main_area;
-  GtkWidget *label;
-  GtkWidget *start_button;
-  GtkWidget *stop_button;
-
-  main_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 100);
-  gtk_container_set_border_width (GTK_CONTAINER (main_area), 50);
+  
+  main_area = gtk_grid_new ();
   gtk_container_add (GTK_CONTAINER (box), main_area);
-  label = gtk_label_new ("00:00");
-  gtk_container_add (GTK_CONTAINER (main_area), label);
 
+  // left column
+  GtkWidget *left_labels;
+  left_labels = gtk_label_new ("Level 1");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 0, 1, 1);
+  left_labels = gtk_label_new ("Entries");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 1, 1, 1);
+  left_labels = gtk_label_new ("Players");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 2, 1, 1);
+  left_labels = gtk_label_new ("Rebuys");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 3, 1, 1);
+  left_labels = gtk_label_new ("Add ons");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 4, 1, 1);
+  left_labels = gtk_label_new ("Total prize");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 5, 1, 1);
+
+  // center column
+  GtkWidget *center_labels;
+
+  center_labels = gtk_label_new ("Next blinds");
+  gtk_grid_attach (GTK_GRID (main_area), center_labels, 1, 0, 1, 1);
+  center_labels = gtk_label_new ("Blinds");
+  gtk_grid_attach (GTK_GRID (main_area), center_labels, 1, 1, 1, 1);
+  center_labels = gtk_label_new ("00:00");
+  gtk_grid_attach (GTK_GRID (main_area), center_labels, 1, 2, 1, 1);
+ 
+  // right column
+  GtkWidget *right_labels;
+  right_labels = gtk_label_new ("Elapsed time");
+  gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 0, 1, 1);
+  right_labels = gtk_label_new ("Next break");
+  gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 1, 1, 1);
+  right_labels = gtk_label_new ("Chip count");
+  gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 2, 1, 1);
+  right_labels = gtk_label_new ("Average stack");
+  gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 3, 1, 1);
+
+  GtkWidget *start_button;
+  
   start_button = gtk_button_new_with_label ("Start/Pause");
-  gtk_container_add (GTK_CONTAINER (main_area), start_button);
-  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), label);
+  gtk_grid_attach (GTK_GRID (main_area), start_button, 1, 6, 1, 1);
+  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), center_labels);
 
-  // adds stylesheet
+  // STYLESHEET START
   GtkCssProvider *provider = gtk_css_provider_new ();
-  GtkStyleContext  *context;
+  GtkStyleContext *context;
+  GtkStyleContext *context1;
   gtk_css_provider_load_from_path (provider, "poker_clock_gtk_c.css", NULL);
-  context = gtk_widget_get_style_context (label);
+  context = gtk_widget_get_style_context (center_labels);
+  context1 = gtk_widget_get_style_context (window);
 
   gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+  gtk_style_context_add_provider (context1, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
+  // STYLESHEET END
 
   // This call recursively calls gtk_widget_show() on all widgets that are contained in the window, directly or indirectly.
   gtk_widget_show_all (window);
