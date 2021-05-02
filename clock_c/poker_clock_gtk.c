@@ -23,7 +23,7 @@ main (int argc, char **argv)
   // connects activate signal to activate function
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 
-  // lauches the app aand sends activate signal, takes command line arguments, the parsed arguments will be removed from the array
+  // lauches the app and sends activate signal, takes command line arguments, the parsed arguments will be removed from the array
   // pressing X on the main window stores the int returned by g_application_run in status
   status = g_application_run (G_APPLICATION (app), argc, argv);
 
@@ -40,9 +40,9 @@ _label_update(gpointer data)
 
   static short seconds = 0;
   static short minutes = 0;
-  char *buf = malloc(200 * sizeof(char));
+  char *buf = malloc(20 * sizeof(char));
 
-  snprintf(buf, 200, "%.2d:%.2d", minutes, ++seconds);
+  snprintf(buf, 20, "%.2d:%.2d", minutes, ++seconds);
   gtk_label_set_label(label, buf);
   free(buf);
 
@@ -90,7 +90,7 @@ activate (GtkApplication *app, gpointer user_data)
 
   window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (window), "Doom clock");
-  gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
+  // gtk_window_set_default_size (GTK_WINDOW (window), 800, 400);
   gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
   
   // box inside window as a base widget
@@ -172,6 +172,8 @@ activate (GtkApplication *app, gpointer user_data)
   gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 4, 1, 1);
   left_labels = gtk_label_new ("Total prize");
   gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 5, 1, 1);
+  left_labels = gtk_label_new ("Prize 1st 2nd 3rd");
+  gtk_grid_attach (GTK_GRID (main_area), left_labels, 0, 6, 3, 1);
 
   // center column
   GtkWidget *center_labels;
@@ -185,6 +187,7 @@ activate (GtkApplication *app, gpointer user_data)
  
   // right column
   GtkWidget *right_labels;
+  
   right_labels = gtk_label_new ("Elapsed time");
   gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 0, 1, 1);
   right_labels = gtk_label_new ("Next break");
@@ -194,11 +197,25 @@ activate (GtkApplication *app, gpointer user_data)
   right_labels = gtk_label_new ("Average stack");
   gtk_grid_attach (GTK_GRID (main_area), right_labels, 2, 3, 1, 1);
 
-  GtkWidget *start_button;
+  // bottom button box
+
+  GtkWidget *button_box;
+  GtkWidget *gear_button;
+  GtkWidget *image;
+
+  button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+  gear_button = gtk_button_new ();
+  image = gtk_image_new_from_file ("icons/gear-icon.png");
+
+  gtk_grid_attach (GTK_GRID (main_area), button_box, 0, 7, 1, 1);
+  gtk_container_add (GTK_CONTAINER (button_box), gear_button);
+  gtk_button_set_image (GTK_BUTTON (gear_button), image);
+
+  // GtkWidget *start_button;
   
-  start_button = gtk_button_new_with_label ("Start/Pause");
-  gtk_grid_attach (GTK_GRID (main_area), start_button, 1, 6, 1, 1);
-  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), center_labels);
+  // start_button = gtk_button_new_with_label ("Start/Pause");
+  // gtk_grid_attach (GTK_GRID (main_area), start_button, 1, 7, 1, 1);
+  // g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), center_labels);
 
   // STYLESHEET START
   GtkCssProvider *provider = gtk_css_provider_new ();
