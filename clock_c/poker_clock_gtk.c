@@ -1,6 +1,15 @@
 #include <gtk/gtk.h>
+#include <stdlib.h>
+
+typedef struct player{
+gchar *name;
+gboolean buy_in;
+gint rebuy_amount;
+gboolean add_on;
+} Player;
 
 // prototypes
+void add_player(GtkWidget *button, gpointer data);
 static gboolean _label_update(gpointer data);
 static void _pause_timer(GtkWidget *button, gpointer data);
 static void _start_timer (GtkWidget *button, gpointer data);
@@ -33,6 +42,60 @@ main (int argc, char **argv)
   return status;
 }
 
+void add_player(GtkWidget *button, gpointer data) {
+
+GtkWindow *window;
+GtkWidget *dialog;
+GtkWidget *grid;
+GtkWidget *name_label;
+GtkWidget *name_entry;
+GtkWidget *buy_in_check;
+GtkWidget *buy_in_label;
+GtkWidget *rebuy_label;
+GtkWidget *rebuy_entry;
+GtkWidget *add_on_check;
+GtkWidget *add_on_label;
+Player *player = (Player*) data;
+
+window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+dialog = gtk_dialog_new_with_buttons("Add Player",
+GTK_WINDOW(window),
+GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+"OK",
+GTK_RESPONSE_ACCEPT,
+"Cancel",
+GTK_RESPONSE_REJECT,
+NULL);
+
+grid = gtk_grid_new();
+gtk_grid_set_row_spacing(GTK_GRID(grid), 10);
+gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+
+name_label = gtk_label_new("Name:");
+name_entry = gtk_entry_new();
+gtk_grid_attach(GTK_GRID(grid), name_label, 0, 0, 1, 1);
+gtk_grid_attach(GTK_GRID(grid), name_entry, 1, 0, 1, 1);
+
+buy_in_check = gtk_check_button_new();
+buy_in_label = gtk_label_new("Buy-in");
+gtk_grid_attach(GTK_GRID(grid), buy_in_check, 0, 1, 1, 1);
+gtk_grid_attach(GTK_GRID(grid), buy_in_label, 1, 1, 1, 1);
+
+rebuy_label = gtk_label_new("Rebuy amount:");
+rebuy_entry = gtk_entry_new();
+gtk_grid_attach(GTK_GRID(grid), rebuy_label, 0, 2, 1, 1);
+gtk_grid_attach(GTK_GRID(grid), rebuy_entry, 1, 2, 1, 1);
+
+add_on_check = gtk_check_button_new();
+add_on_label = gtk_label_new("Add-on");
+gtk_grid_attach(GTK_GRID(grid), add_on_check, 0, 3, 1, 1);
+gtk_grid_attach(GTK_GRID(grid), add_on_label, 1, 3, 1, 1);
+
+gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid);
+
+gtk_widget_show_all(dialog);
+}
+
 static gboolean
 _label_update(gpointer data)
 {
@@ -40,11 +103,19 @@ _label_update(gpointer data)
 
   static short seconds = 0;
   static short minutes = 0;
-  char *buf = malloc(20 * sizeof(char));
+  gchar *buf = g_malloc(20 * sizeof(gchar));
 
-  snprintf(buf, 20, "%.2d:%.2d", minutes, ++seconds);
+  snprintf(buf, 20, "%.2d:%.2d", minutes, seconds);
+  seconds++;
+  if (seconds == 60) {
+    seconds = 0;
+    minutes++;
+  }
+  if (minutes == 60) {
+    minutes = 0;
+  }
   gtk_label_set_label(label, buf);
-  free(buf);
+  g_free(buf);
 
   return continue_timer;
 }
@@ -53,15 +124,11 @@ static void
 _pause_timer(GtkWidget *button, gpointer data)
 {
   GtkWidget *label = data;
+  g_source_remove_by_user_data(label);
   if(start_timer)
   {
     continue_timer = !continue_timer;
-    if(continue_timer)
-    {
-      g_timeout_add_seconds(1, _label_update, label);
-      start_timer = TRUE;
-      continue_timer = TRUE;
-    }
+    start_timer = !start_timer;
   }
   g_signal_connect (G_OBJECT(button), "clicked", G_CALLBACK (_start_timer), label);
 }
@@ -69,14 +136,13 @@ _pause_timer(GtkWidget *button, gpointer data)
 static void
 _start_timer (GtkWidget *button, gpointer data)
 {
-
   GtkWidget *label = data;
-
+  
   if(!start_timer)
   {
     g_timeout_add_seconds(1, _label_update, label);
-    start_timer = TRUE;
-    continue_timer = TRUE;
+    continue_timer = !continue_timer;
+    start_timer = !start_timer;
   }
   g_signal_connect (G_OBJECT(button), "clicked", G_CALLBACK (_pause_timer), label);
 }
@@ -211,11 +277,22 @@ activate (GtkApplication *app, gpointer user_data)
   gtk_container_add (GTK_CONTAINER (button_box), gear_button);
   gtk_button_set_image (GTK_BUTTON (gear_button), image);
 
-  // GtkWidget *start_button;
+  GtkWidget *start_button;
   
-  // start_button = gtk_button_new_with_label ("Start/Pause");
-  // gtk_grid_attach (GTK_GRID (main_area), start_button, 1, 7, 1, 1);
-  // g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), center_labels);
+  start_button = gtk_button_new_with_label ("Start/Pause");
+  gtk_grid_attach (GTK_GRID (main_area), start_button, 1, 7, 1, 1);
+  g_signal_connect (G_OBJECT(start_button), "clicked", G_CALLBACK (_start_timer), center_labels);
+
+  // Add player button
+  GtkWidget *add_player_button;
+  Player *player;
+
+  // Create add player button and position it in the grid
+  add_player_button = gtk_button_new_with_label("Add Player");
+  gtk_grid_attach(GTK_GRID(main_area), add_player_button, 2, 7, 1, 1);
+
+  // Connect add player button to the add_player function
+  g_signal_connect(G_OBJECT(add_player_button), "clicked", G_CALLBACK(add_player), player);
 
   // STYLESHEET START
   GtkCssProvider *provider = gtk_css_provider_new ();
